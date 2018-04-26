@@ -33,7 +33,7 @@ type AuthorConfig struct {
 }
 
 type BuildConfig struct {
-	Output	string
+	Output  string
 	Port    string
 	Watch   bool
 	Copy    []string
@@ -55,6 +55,7 @@ type ArticleConfig struct {
 	Author     string
 	Tags       []string
 	Categories []string
+	Keywords   string
 	Topic      string
 	Cover      string
 	Draft      bool
@@ -75,6 +76,7 @@ type Article struct {
 	Author   AuthorConfig
 	Category string
 	Tags     []string
+	Keywords string
 	Markdown string
 	Preview  template.HTML
 	Content  template.HTML
@@ -122,7 +124,7 @@ func ParseGlobalConfig(configPath string, develop bool) *GlobalConfig {
 	if config.Site.Url != "" && strings.HasSuffix(config.Site.Url, "/") {
 		config.Site.Url = strings.TrimSuffix(config.Site.Url, "/")
 	}
-	if (config.Build.Output == "") {
+	if config.Build.Output == "" {
 		config.Build.Output = "public"
 	}
 	// Parse Theme Config
@@ -240,6 +242,7 @@ func ParseArticle(markdownPath string) *Article {
 			article.Tags = append(article.Tags, cat)
 		}
 	}
+	article.Keywords = config.Keywords
 	// Support topic and cover field
 	if config.Cover != "" {
 		article.Cover = config.Cover
