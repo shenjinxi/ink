@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gorilla/feeds"
+	"github.com/joeguo/sitemap"
 )
 
 type Data interface{}
@@ -110,6 +111,14 @@ func GenerateRSS(articles Collections) {
 				Updated:     article.MTime,
 			})
 		}
+		if atom, err := feed.ToRss(); err == nil {
+			err := ioutil.WriteFile(filepath.Join(publicPath, "rss.xml"), []byte(atom), 0644)
+			if err != nil {
+				Fatal(err.Error())
+			}
+		} else {
+			Fatal(err.Error())
+		}
 		if atom, err := feed.ToAtom(); err == nil {
 			err := ioutil.WriteFile(filepath.Join(publicPath, "atom.xml"), []byte(atom), 0644)
 			if err != nil {
@@ -192,4 +201,24 @@ func GenerateJSON(articles Collections) {
 	}
 	str, _ := json.Marshal(datas)
 	ioutil.WriteFile(filepath.Join(publicPath, "index.json"), []byte(str), 0644)
+}
+
+//GenerateSitemap GenerateSitemap
+func GenerateSitemap(articles Collections) {
+	defer wg.Done()
+	if globalConfig.Site.Url != "" {
+		sitemapArticles := articles
+		items := make([]*sitemap.Item, len(articles))
+
+		for i, item := range sitemapArticles {
+
+			article := item.(Article)
+			items[i] = &sitemap.Item{Loc: globalConfig.Site.Url + article.Link,
+				LastMod: article.MTime, Changefreq: "1"}
+		}
+		err := sitemap.SiteMap(filepath.Join(publicPath, "sitemap.xml"), items)
+		if err != nil {
+			Fatal(err.Error())
+		}
+	}
 }

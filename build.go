@@ -167,6 +167,9 @@ func Build() {
 	// Sort by date
 	sort.Sort(articles)
 	sort.Sort(visibleArticles)
+	// Generate sitemap
+	wg.Add(1)
+	go GenerateSitemap(articles)
 	// Generate RSS page
 	wg.Add(1)
 	go GenerateRSS(visibleArticles)
